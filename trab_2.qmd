@@ -1,7 +1,7 @@
 ---
 title: Estimativa de uso de celulares
 title-slide-attributes:
-    data-background-image: bg_img/bd.jpg
+    data-background-image: bg_img/pngegg.png
     data-background-size: contain
     data-background-opacity: "0.35"
 
@@ -27,6 +27,8 @@ library(kableExtra)
 library(htmlwidgets)
 library(leaflet)
 library(maps)
+library(showtext)
+# install.packages("showtext")
 
 ```
 
@@ -45,9 +47,14 @@ dummy_db_header <- c("Idade", "Gênero", "Horas Gastas",
 
 ## Sobre o dataset
 
-- Texto
+- Este é um conjunto de dados simulados, gerado utilizando a biblioteca ‘NumPy’ do Python. Os dados representam o tempo que um usuário passa em seus dispositivos utilizando as redes sociais.
+
 
 ## Contexto
+
+- Criado esses dados com o objetivo de treinar um modelo de Inteligência Artificial para fins de prática pessoal.
+
+
 
 - Texto 
 
@@ -193,3 +200,366 @@ ggplot(dummy_db, aes(x = platform, y = time_spent, fill = platform)) +
 ```
 
 :::
+
+# Testes de hipótese
+
+```{r dt_teste, include=FALSE, warning=FALSE}
+
+dt <- dummy_db |> 
+  mutate(tempo_no_dia = time_spent / 24)
+
+#Fontes Utilizadas nos Gráficos
+font_add_google("Playfair Display",
+                "Playfair")
+showtext_auto()
+
+#Componentes necessários para o gráfico 01 - teste hip. p/ Médias das proporções dos homens e mulheres:
+
+homens <- dt |> 
+  filter(gender == 'male')
+
+mulheres <- dt |> 
+  filter(gender == 'female')
+
+media_homens <- mean(homens$tempo_no_dia)
+media_mulheres <- mean(mulheres$tempo_no_dia)
+
+p_c <- (media_homens * nrow(homens) + media_mulheres * nrow(mulheres)) / (nrow(homens) + nrow(mulheres))
+
+```
+
+## Sobre os testes
+Um teste Z de duas amostras é usado para testar a diferença entre duas proporções de populações, p1 e p2, quando uma amostra é selecionada aleatoriamente de cada população. 
+
+
+A estatística de teste é : 
+$$
+\small\ Z_{\text{obs}} = \frac{(\hat{p}_1 - \hat{p}_2) - (p_1 - p_2)}{\sqrt{\hat{p}(1-\hat{p})\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} 
+$$
+
+onde:
+
+-  p̂1 e  p̂2 são as proporções das amostras 1 e 2
+
+-  p1 e p2 são as proporções populacionais das populações 1 e 2
+
+- n1 e n2 são os tamanhos das amostras 1 e 2
+
+- p̂ é uma estimativa ponderada tal que
+
+$$
+\hat{p} = \frac{x_1+x_2}{n_1+n_2}
+{\text{em que}} (x_1 = n_1\hat{p}_1) {\text{ e }} (x_2 = n_2\hat{p}_2).
+$$ 
+
+```{r info_teste, eval=TRUE, echo=TRUE}
+#Todos os testes levam em consideração alpha de 0.05 e são bilaterais:
+lim_inf <- qnorm(0.025)
+lim_sup <- qnorm(0.025, lower.tail = F)
+
+#Cálcular estatística de teste e p-valor:
+z_t <- (media_homens - media_mulheres) / (sqrt(p_c*(1-p_c) * (1/nrow(homens) + 1/nrow(mulheres))))
+
+p_valor <- pnorm(z_t)
+
+```
+
+## Primeiro teste
+- H0: Proporção de uso por gênero é igual
+
+- Ha: Proporção de uso por gênero é diferente
+``` {r teste_1, include=FALSE, warning=FALSE}
+#gráfico 01
+a <- ggplot() +
+  stat_function(fun = dnorm,
+                geom = "line", 
+                xlim = c(-4,4)) +
+  stat_function(fun = dnorm,
+                geom = "area", fill = "blue",
+                alpha = 0.2,
+                xlim = c(-5, z_t)) +
+  stat_function(fun = dnorm,
+                geom = "area", fill = "blue",
+                alpha = 0.3,
+                xlim = c(-5, lim_inf)) +
+  stat_function(fun = dnorm,
+                geom = "area", fill = "blue",
+                alpha = 0.3,
+                xlim = c(5, lim_sup)) +
+  geom_line(aes(x = lim_inf, y = c(0, 0.06))) +
+  geom_line(aes(x = lim_sup, y = c(0, 0.06))) +
+  geom_line(aes(x = -0.48, y = c(0, 0.355))) +
+  annotate(geom = "text", 
+           x = -3.65, 
+           y = 0.1, 
+           label = "-1.96",
+           family = "Playfair",
+           size = 6) +
+  annotate(geom = "text", 
+           x = 3.65, 
+           y = 0.1, 
+           label = "1.96",
+           family = "Playfair",
+           size = 6) +
+  annotate(geom = "text", 
+           x = -2.2, 
+           y = 0.38, 
+           label = "-0.48",
+           family = "Playfair",
+           size = 6) + 
+  annotate(geom = "text", 
+           x = 3.5, 
+           y = 0.4, 
+           label = paste("P-valor: ", round(p_valor, 4)),
+           family = "Playfair",
+           size = 4) +
+  annotate(geom = "curve", 
+           x = lim_inf,
+           y = 0.06,
+           xend = -3, 
+           yend = 0.1,
+           linewidth = 0.3,
+           arrow = arrow(length = unit(3, "mm"))
+  ) +
+  annotate(geom = "curve", 
+           x = lim_sup,
+           y = 0.06,
+           xend = 3, 
+           yend = 0.1,
+           linewidth = 0.3,
+           curvature = -0.4,
+           arrow = arrow(length = unit(3, "mm"))) +
+  annotate(geom = "curve", 
+           x = -0.48,
+           y = 0.355,
+           xend = -1.6, 
+           yend = 0.38,
+           linewidth = 0.3,
+           curvature = 0.4,
+           arrow = arrow(length = unit(3, "mm"))) +
+  labs(x = "Z",
+       y = "Densidade",
+       title = "Teste hipótese proporções do tempo gasto em\nredes socias por gênero") +
+  theme(plot.background = element_rect(fill = "#fcfbf9"),
+        panel.background = element_rect(fill = NA),
+        plot.title = element_text(family = "Playfair", hjust = .5, size = 15),
+        axis.title = element_text(family = "Playfair", hjust = .5, size = 15))
+```
+```{r grafico teste_1}
+a
+```
+
+## Segundo teste
+- H0: Proporção pop. casa prórpia = sem casa prórpia
+
+- H1: Proporção pop. casa prórpia != sem casa prórpia
+```{r teste_2, include=FALSE, warning=FALSE}
+#Componentes necessários para o gráfico 02 - teste hip. p/ Médias das proporções das pesssoas que tem casa e não tem:
+
+casa_t <- dt |> 
+  filter(isHomeOwner == "True")
+
+casa_f <- dt |> 
+  filter(isHomeOwner == "False")
+
+media_casa_t <- mean(casa_t$tempo_no_dia)
+media_casa_f <- mean(casa_f$tempo_no_dia)
+
+p_c2 <- (media_casa_t * nrow(casa_t) + media_casa_f * nrow(casa_f)) / (nrow(casa_t) + nrow(casa_f))
+
+#Cálcular Estatística de Teste:
+
+z_t2 <- (media_casa_t - media_casa_f) / (sqrt(p_c2*(1-p_c2) * (1/nrow(casa_t) + 1/nrow(casa_f))))
+
+p_valor2 <- pnorm(z_t2)
+
+#Gráfico 02: 
+
+b <- ggplot() +
+  stat_function(fun = dnorm,
+                geom = "line", 
+                xlim = c(-4,4)) +
+  stat_function(fun = dnorm,
+                geom = "area", fill = "red",
+                alpha = 0.2,
+                xlim = c(-5, z_t2)) +
+  stat_function(fun = dnorm,
+                geom = "area", fill = "red",
+                alpha = 0.3,
+                xlim = c(-5, lim_inf)) +
+  stat_function(fun = dnorm,
+                geom = "area", fill = "red",
+                alpha = 0.3,
+                xlim = c(5, lim_sup)) +
+  geom_line(aes(x = lim_inf, y = c(0, 0.06))) +
+  geom_line(aes(x = lim_sup, y = c(0, 0.06))) +
+  geom_line(aes(x = 0.24, y = c(0, 0.387))) +
+  annotate(geom = "text", 
+           x = -3.65, 
+           y = 0.1, 
+           label = "-1.96",
+           family = "Playfair",
+           size = 6) +
+  annotate(geom = "text", 
+           x = 3.65, 
+           y = 0.1, 
+           label = "1.96",
+           family = "Playfair",
+           size = 6) +
+  annotate(geom = "text", 
+           x = 2, 
+           y = 0.38, 
+           label = "0.24",
+           family = "Playfair",
+           size = 6) + 
+  annotate(geom = "text", 
+           x = 3.5, 
+           y = 0.4, 
+           label = paste("P-valor: ", round(p_valor2, 4)),
+           family = "Playfair",
+           size = 4) +
+  annotate(geom = "curve", 
+           x = lim_inf,
+           y = 0.06,
+           xend = -3, 
+           yend = 0.1,
+           linewidth = 0.3,
+           arrow = arrow(length = unit(3, "mm"))
+  ) +
+  annotate(geom = "curve", 
+           x = lim_sup,
+           y = 0.06,
+           xend = 3, 
+           yend = 0.1,
+           linewidth = 0.3,
+           curvature = -0.4,
+           arrow = arrow(length = unit(3, "mm"))) +
+  annotate(geom = "curve", 
+           x = 0.24,
+           y = 0.385,
+           xend = 1.45, 
+           yend = 0.37,
+           linewidth = 0.3,
+           curvature = 0.4,
+           arrow = arrow(length = unit(3, "mm"))) +
+  labs(x = "Z",
+       y = "Densidade",
+       title = "Teste hipótese proporções do tempo gasto em redes socias\npor pessoas que possuem casas e que não possuem") +
+  theme(plot.background = element_rect(fill = "#fcfbf9"),
+        panel.background = element_rect(fill = NA),
+        plot.title = element_text(family = "Playfair", hjust = .5, size = 15),
+        axis.title = element_text(family = "Playfair", hjust = .5, size = 15))
+
+```
+
+```{r grafico teste_2}
+b
+```
+
+## Terceiro teste
+- H0: Proporção de uso pop. EUA = Austrália
+
+- Ha: Proporção de uso pop. EUA != Austrália
+
+```{r teste_3, include=FALSE, warning=FALSE}
+#Componentes necessários para o gráfico 03 - teste hip. p/ Médias das proporções do tempo gasto em redes socias por pessoas dos EUA e na Australia
+
+people_eua <- dt |> 
+  filter(location == "United States")
+
+people_aust <- dt |> 
+  filter(location == "Australia")
+
+media_people_eua <- mean(people_eua$tempo_no_dia)
+media_people_aust <- mean(people_aust$tempo_no_dia)
+
+p_c3 <- (media_people_eua * nrow(people_eua) + media_people_aust * nrow(people_aust)) / (nrow(people_eua) + nrow(people_aust))
+
+#Cálcular estatística de teste:
+
+z_t3 <- (media_people_eua - media_people_aust) / (sqrt(p_c3*(1-p_c3) * (1/nrow(people_eua) + 1/nrow(people_aust))))
+
+p_valor3 <- pnorm(z_t3)
+
+#Gráfico 03: 
+
+c <- ggplot() +
+  stat_function(fun = dnorm,
+                geom = "line", 
+                xlim = c(-4,4)) +
+  stat_function(fun = dnorm,
+                geom = "area", fill = "green",
+                alpha = 0.2,
+                xlim = c(-5, z_t3)) +
+  stat_function(fun = dnorm,
+                geom = "area", fill = "green",
+                alpha = 0.3,
+                xlim = c(-5, lim_inf)) +
+  stat_function(fun = dnorm,
+                geom = "area", fill = "green",
+                alpha = 0.3,
+                xlim = c(5, lim_sup)) +
+  geom_line(aes(x = lim_inf, y = c(0, 0.06))) +
+  geom_line(aes(x = lim_sup, y = c(0, 0.06))) +
+  geom_line(aes(x = z_t3, y = c(0, 0.37))) +
+  annotate(geom = "text", 
+           x = -3.65, 
+           y = 0.1, 
+           label = "-1.96",
+           family = "Playfair",
+           size = 6) +
+  annotate(geom = "text", 
+           x = 3.65, 
+           y = 0.1, 
+           label = "1.96",
+           family = "Playfair",
+           size = 6) +
+  annotate(geom = "text", 
+           x = -2.2, 
+           y = 0.38, 
+           label = "-0.36",
+           family = "Playfair",
+           size = 6) + 
+  annotate(geom = "text", 
+           x = 3.5, 
+           y = 0.4, 
+           label = paste("P-valor: ", round(p_valor3, 4)),
+           family = "Playfair",
+           size = 4) +
+  annotate(geom = "curve", 
+           x = lim_inf,
+           y = 0.06,
+           xend = -3, 
+           yend = 0.1,
+           linewidth = 0.3,
+           arrow = arrow(length = unit(3, "mm"))
+  ) +
+  annotate(geom = "curve", 
+           x = lim_sup,
+           y = 0.06,
+           xend = 3, 
+           yend = 0.1,
+           linewidth = 0.3,
+           curvature = -0.4,
+           arrow = arrow(length = unit(3, "mm"))) +
+  annotate(geom = "curve", 
+           x = -0.36,
+           y = 0.37,
+           xend = -1.6, 
+           yend = 0.38,
+           linewidth = 0.3,
+           curvature = 0.4,
+           arrow = arrow(length = unit(3, "mm"))) +
+  labs(x = "Z",
+       y = "Densidade",
+       title = "Teste hipótese proporções do tempo gasto em redes socias\npor pessoas dos EUA e na Austrália") +
+  theme(plot.background = element_rect(fill = "#fcfbf9"),
+        panel.background = element_rect(fill = NA),
+        plot.title = element_text(family = "Playfair", hjust = .5, size = 15),
+        axis.title = element_text(family = "Playfair", hjust = .5, size = 15))
+
+```
+
+```{r grafico teste_3}
+c
+```
