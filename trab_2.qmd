@@ -12,22 +12,77 @@ format:
     theme: [default, pp.scss]
 ---
 
+```{r libraries, include=FALSE, warning=FALSE}
 
-## Quarto
+# Quarto doc: https://quarto.org/docs/presentations/revealjs/
 
-Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+library(readr)
+library(dplyr)
+library(gridExtra)
+# library(patchwork)
+library(ggplot2)
+# library(magick)
+library(tidyr)
+library(kableExtra)
+library(htmlwidgets)
+library(leaflet)
+library(maps)
 
-## Bullets
-
-When you click the **Render** button a document will be generated that includes:
-
--   Content authored with markdown
--   Output from executable code
-
-## Code
-
-When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r}
-1 + 1
 ```
+
+```{r setup, include=FALSE, warning=FALSE}
+
+dummy_db <- read_csv("dummy_data.csv")
+
+dummy_db$day_spent <- dummy_db$time_spent / 24
+
+dummy_db_header <- c("Idade", "Gênero", "Horas Gastas",
+                     "Plataforma", "Interesse", "Localização",
+                     "Demografia", "Profissão", "Renda",
+                     "Possui Dívida", "Possui Casa", "Possui Carro",
+                     "Dia Gasto")
+```
+
+## Sobre o dataset
+
+- Texto
+
+## Contexto
+
+- Texto 
+
+## Apresentando o Dataset
+Exemplo de uma pequena amostra aleatória do dataset:
+
+```{r amostra_dtset}
+
+ knitr::kable(head(dummy_db),
+  col.names = dummy_db_header,
+  align = "rcrcccccrcccr"
+ )  %>%
+   kable_styling(full_width = F, font_size = 17)
+```
+
+## Análise Descritiva
+
+::: {.panel-tabset}
+
+### Visão Geográfica
+
+```{r mapa}
+
+countries <- unique(dummy_db$location) 
+countries <- append(countries, c("USA", "UK"))
+
+mapa_mundi <- map_data("world")
+
+ggplot() +
+  geom_polygon(data = mapa_mundi, aes(x = long, y = lat, group = group), 
+               fill="#69685C", color = "white") +
+  geom_polygon(data = subset(mapa_mundi, region %in% countries), aes(x = long, y = lat, group = group), 
+               fill = "#8A58E8", color = "#8A58E8") +
+  theme_void()
+```
+
+
+:::
