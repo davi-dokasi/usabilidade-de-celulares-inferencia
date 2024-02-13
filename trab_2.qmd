@@ -77,12 +77,70 @@ countries <- append(countries, c("USA", "UK"))
 mapa_mundi <- map_data("world")
 
 ggplot() +
-  geom_polygon(data = mapa_mundi, aes(x = long, y = lat, group = group), 
-               fill="#69685C", color = "white") +
-  geom_polygon(data = subset(mapa_mundi, region %in% countries), aes(x = long, y = lat, group = group), 
+  geom_polygon(data = mapa_mundi,
+               aes(x = long, y = lat, group = group), 
+               fill = "#69685C", 
+               color = "white") +
+  geom_polygon(data = subset(mapa_mundi, region %in% countries),
+               aes(x = long, y = lat, group = group), 
                fill = "#8A58E8", color = "#8A58E8") +
   theme_void()
 ```
 
+### Observações
+
+Histograma das Idades
+```{r hist_idade}
+
+ggplot(data=dummy_db,aes(x=age)) +
+  geom_histogram(binwidth = 1, fill = "#699388", color = "#e9ecef") +
+  labs( x = "Idade", 
+        y = "Freq.", 
+        subtitle = paste("Média: ", mean(dummy_db$age) , "; Desv. Pad: " , sd(dummy_db$age))) + 
+  theme_bw() + 
+  theme(plot.background = element_rect(fill = "#fcfbf9"),
+        legend.background = element_rect(fill = "#fcfbf9"),
+        panel.background = element_rect(fill = "#fcfbf9"),
+        legend.key = element_rect(fill = "#fcfbf9"),
+        panel.border = element_rect(fill = "NA", color = "#fcfbf9"),
+        plot.margin = margin(0,0,0,0),
+        text = element_text(size = 12))
+```
+
+Histograma da Renda
+```{r hist_renda}
+
+ggplot(data=dummy_db,aes(x=income)) +
+  geom_histogram(binwidth = 150, fill = "#699388", color = "#e9ecef") +
+  labs( x = "Renda", 
+        y = "Freq.", 
+        subtitle = paste("Média: ", mean(dummy_db$income) , "; Desv. Pad: " , sd(dummy_db$income))) + 
+  theme_bw() + 
+  theme(plot.background = element_rect(fill = "#fcfbf9"),
+        legend.background = element_rect(fill = "#fcfbf9"),
+        panel.background = element_rect(fill = "#fcfbf9"),
+        legend.key = element_rect(fill = "#fcfbf9"),
+        panel.border = element_rect(fill = "NA", color = "#fcfbf9"),
+        plot.margin = margin(0,0,0,0),
+        text = element_text(size = 12))
+```
+
+Histograma da Tempo Gasto em Redes Sociais
+```{r hist_tempo}
+
+ggplot(data=dummy_db,aes(x=time_spent)) +
+  geom_histogram(binwidth = 1, fill = "#699388", color = "#e9ecef") +
+  labs( x = "Tempo (horas)", 
+        y = "Freq.", 
+        subtitle = paste("Média: ", mean(dummy_db$time_spent) , "; Desv. Pad: " , sd(dummy_db$time_spent))) + 
+  theme_bw() + 
+  theme(plot.background = element_rect(fill = "#fcfbf9"),
+        legend.background = element_rect(fill = "#fcfbf9"),
+        panel.background = element_rect(fill = "#fcfbf9"),
+        legend.key = element_rect(fill = "#fcfbf9"),
+        panel.border = element_rect(fill = "NA", color = "#fcfbf9"),
+        plot.margin = margin(0,0,0,0),
+        text = element_text(size = 12))
+```
 
 :::
