@@ -96,7 +96,7 @@ ggplot(data=dummy_db,aes(x=age)) +
   geom_histogram(binwidth = 1, fill = "#699388", color = "#e9ecef") +
   labs( x = "Idade", 
         y = "Freq.", 
-        subtitle = paste("Média: ", mean(dummy_db$age) , "; Desv. Pad: " , sd(dummy_db$age))) + 
+        subtitle = paste("Média: ", mean(dummy_db$age) , "; Desvio Padrão: " , sd(dummy_db$age))) + 
   theme_bw() + 
   theme(plot.background = element_rect(fill = "#fcfbf9"),
         legend.background = element_rect(fill = "#fcfbf9"),
@@ -114,7 +114,7 @@ ggplot(data=dummy_db,aes(x=income)) +
   geom_histogram(binwidth = 150, fill = "#699388", color = "#e9ecef") +
   labs( x = "Renda", 
         y = "Freq.", 
-        subtitle = paste("Média: ", mean(dummy_db$income) , "; Desv. Pad: " , sd(dummy_db$income))) + 
+        subtitle = paste("Média: ", mean(dummy_db$income) , "; Desvio Padrão: " , sd(dummy_db$income))) + 
   theme_bw() + 
   theme(plot.background = element_rect(fill = "#fcfbf9"),
         legend.background = element_rect(fill = "#fcfbf9"),
@@ -132,7 +132,56 @@ ggplot(data=dummy_db,aes(x=time_spent)) +
   geom_histogram(binwidth = 1, fill = "#699388", color = "#e9ecef") +
   labs( x = "Tempo (horas)", 
         y = "Freq.", 
-        subtitle = paste("Média: ", mean(dummy_db$time_spent) , "; Desv. Pad: " , sd(dummy_db$time_spent))) + 
+        subtitle = paste("Média: ", mean(dummy_db$time_spent) , "; Desvio Padrão: " , sd(dummy_db$time_spent))) + 
+  theme_bw() + 
+  theme(plot.background = element_rect(fill = "#fcfbf9"),
+        legend.background = element_rect(fill = "#fcfbf9"),
+        panel.background = element_rect(fill = "#fcfbf9"),
+        legend.key = element_rect(fill = "#fcfbf9"),
+        panel.border = element_rect(fill = "NA", color = "#fcfbf9"),
+        plot.margin = margin(0,0,0,0),
+        text = element_text(size = 12))
+      
+```
+
+Variáveis Descritivas  
+
+::: columns
+::: {.column width="33%"}
+```{r resum_location}
+
+ knitr::kable(table(dummy_db$location), 
+    col.names = c("Local", "Freq")) %>%
+   kable_styling(full_width = F, font_size = 23)
+```
+
+:::
+::: {.column width="33%"}
+```{r resum_ldemo}
+
+ knitr::kable(table(dummy_db$demographics), 
+    col.names = c("Demograf", "Freq")) %>%
+   kable_styling(full_width = F, font_size = 23)
+```
+
+:::
+::: {.column width="33%"}
+```{r resum_plat}
+
+ knitr::kable(table(dummy_db$platform), 
+    col.names = c("Plataforma", "Freq")) %>%
+   kable_styling(full_width = F, font_size = 23)
+```
+
+:::
+:::
+
+```{r box_plot_plat}
+
+ggplot(dummy_db, aes(x = platform, y = time_spent, fill = platform)) +
+  geom_boxplot() +
+  labs(x = "Plataforma",
+       y = "Tempo Gasto (Horas)") +
   theme_bw() + 
   theme(plot.background = element_rect(fill = "#fcfbf9"),
         legend.background = element_rect(fill = "#fcfbf9"),
