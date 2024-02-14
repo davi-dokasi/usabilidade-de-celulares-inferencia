@@ -215,9 +215,9 @@ ggplot(dummy_db, aes(x = platform, y = time_spent, fill = platform)) +
 
 Tendo em vista toda análise descritiva realizada, utilizaremos testes de hipóteses para responder algumas questões: 
 
-- Há diferença no tempo de uso das redes socias entre homens e mulheres?  
-- Há diferença no tempo de uso das redes socias entre pessoas que possuem uma casa própria e pessoas que não possuem?
-- Há diferença no tempo de uso das redes socias entre residentes americanos e residentes australianos?
+- Há diferença na proporção de homens e mulheres que utilizam as redes sociais por mais de 5 horas?
+- Há diferença na proporção de pessoas com e sem casa própria que utilizam as redes sociais por mais de 5 horas? 
+- Há diferença na proporção de americanos e australianos que utilizam as redes sociais por mais de 5 horas? 
 
 Para todos esses testes consideramos um nível de significância de 5%.
 ```{r limites}
@@ -239,7 +239,7 @@ $$
 
 onde:
 
-- p̂1 e  p̂2 são as proporções das amostrais
+- p̂1 e p̂2 são as proporções das amostrais
 - p1 e p2 são as proporções populacionais
 - n1 e n2 são o tamanho das amostras
 - p̂ é uma estimativa ponderada tal que
@@ -248,6 +248,8 @@ $$
 \hat{p} = \frac{x_1+x_2}{n_1+n_2}
 {\text{ em que }} (x_1 = n_1\hat{p}_1) {\text{ e }} (x_2 = n_2\hat{p}_2).
 $$ 
+
+# Primeiro teste
 
 ## Primeiro teste
 
@@ -279,13 +281,13 @@ table_male_female <- data.frame(Homens = homens, Mulheres = mulheres)
 knitr::kable(t(table_male_female),
   col.names = c("Mais de 5 horas", "5 horas ou menos", "Total"), 
   row.names = TRUE) %>%
- kable_styling(full_width = F, font_size = 17) 
+ kable_styling(full_width = F, font_size = 23) 
 
 ```
 
 ## Conclusão
 
-```{r conc_teste_1}
+```{r conc_teste_1, fig.align='center'}
 
 ggplot() +
   stat_function(fun = dnorm,
@@ -367,33 +369,46 @@ ggplot() +
 Portando aceitarmos <i>H<sub>0</sub></i>. 
 Desta forma, concluímos que há evidências para acreditarmos que não há diferença entre a proporção de homens e mulheres que usam as redes sociais por mais de 5 horas.
 
+
+# Segundo teste
 ## Segundo teste
-- H0: Proporção pop. casa prórpia = sem casa prórpia
 
-- Ha: Proporção pop. casa prórpia != sem casa prórpia
-```{r teste_2, include=FALSE, warning=FALSE}
-#Componentes necessários para o gráfico 02 - teste hip. p/ Médias das proporções das pesssoas que tem casa e não tem:
+- <i>H<sub>0</sub></i>: A proporção de pessoas com e sem casa própria que gastam mais de 5 horas em redes sociais é igual; 
+- <i>H<sub>a</sub></i>: A proporção de pessoas com e sem casa própria que gastam mais de 5 horas em redes sociais é diferente; 
 
-casa_t <- dummy_db |> 
-  filter(isHomeOwner == "TRUE")
+``` {r teste_2, fig.align='center'}
 
-casa_f <- dummy_db |> 
-  filter(isHomeOwner == "FALSE")
+dummy_hm_owner <- dummy_db |> 
+                  filter(isHomeOwner)
 
-media_casa_t <- mean(casa_t$day_spent)
-media_casa_f <- mean(casa_f$day_spent)
+dummy_not_hm_owner <- dummy_db |> 
+                      filter(!isHomeOwner)                  
 
-p_c2 <- (media_casa_t * nrow(casa_t) + media_casa_f * nrow(casa_f)) / (nrow(casa_t) + nrow(casa_f))
+p1 <- sum(dummy_hm_owner$more_than_5) / nrow(dummy_hm_owner)
+p2 <- sum(dummy_not_hm_owner$more_than_5) / nrow(dummy_not_hm_owner) 
+p <- ((nrow(dummy_hm_owner) * p1) + (nrow(dummy_not_hm_owner) * p2)) / nrow(dummy_db)
 
-#Cálcular Estatística de Teste:
+z <- (p1 - p2)/(sqrt(p*(1-p)*((1 / nrow(dummy_hm_owner)) + (1 / nrow(dummy_not_hm_owner)))))
 
-z_t2 <- (media_casa_t - media_casa_f) / (sqrt(p_c2*(1-p_c2) * (1/nrow(casa_t) + 1/nrow(casa_f))))
+p_valor <- pnorm(z)
 
-p_valor2 <- pnorm(z_t2)
+hm_owner <- c(sum(dummy_hm_owner$more_than_5), nrow(dummy_hm_owner) - sum(dummy_hm_owner$more_than_5), nrow(dummy_hm_owner))
+not_hm_owner <- c(sum(dummy_not_hm_owner$more_than_5), nrow(dummy_not_hm_owner) - sum(dummy_not_hm_owner$more_than_5), nrow(dummy_not_hm_owner))
 
-#Gráfico 02: 
+table_hm_owners <- data.frame(Possui = hm_owner, Não_Possui = not_hm_owner)
 
-b <- ggplot() +
+knitr::kable(t(table_hm_owners),
+  col.names = c("Mais de 5 horas", "5 horas ou menos", "Total"), 
+  row.names = TRUE) %>%
+ kable_styling(full_width = F, font_size = 23) 
+
+```
+
+## Conclusão
+
+```{r conc_teste_2, fig.align='center'}
+
+ggplot() +
   stat_function(fun = dnorm,
                 geom = "line", 
                 xlim = c(-4,4),
@@ -401,7 +416,7 @@ b <- ggplot() +
   stat_function(fun = dnorm,
                 geom = "area", fill = "red",
                 alpha = 0.2,
-                xlim = c(-5, 0.24)) +
+                xlim = c(-5, z)) +
   stat_function(fun = dnorm,
                 geom = "area", fill = "red",
                 alpha = 0.3,
@@ -412,7 +427,7 @@ b <- ggplot() +
                 xlim = c(5, lim_sup)) +
   geom_line(aes(x = lim_inf, y = c(0, 0.06))) +
   geom_line(aes(x = lim_sup, y = c(0, 0.06))) +
-  geom_line(aes(x = 0.24, y = c(0, 0.387))) +
+  geom_line(aes(x = z, y = c(0, 0.387))) +
   annotate(geom = "text", 
            x = -3.45, 
            y = 0.1, 
@@ -434,7 +449,7 @@ b <- ggplot() +
   annotate(geom = "text", 
            x = 3.5, 
            y = 0.4, 
-           label = paste("P-valor: ", round(p_valor2, 4)),
+           label = paste("P-valor: ", round(p_valor, 4)),
            family = "Playfair",
            size = 13) +
   annotate(geom = "curve", 
@@ -454,7 +469,7 @@ b <- ggplot() +
            curvature = -0.4,
            arrow = arrow(length = unit(3, "mm"))) +
   annotate(geom = "curve", 
-           x = 0.24,
+           x = z,
            y = 0.385,
            xend = 1.45, 
            yend = 0.375,
@@ -462,8 +477,7 @@ b <- ggplot() +
            curvature = -0.3,
            arrow = arrow(length = unit(3, "mm"))) +
   labs(x = "Z",
-       y = "Densidade",
-       title = "Teste hipótese proporções do tempo gasto em redes socias\npor pessoas que possuem casas e que não possuem") +
+       y = "Densidade") +
   theme(plot.background = element_rect(fill = "#fcfbf9"),
         panel.background = element_rect(fill = NA),
          plot.title = element_text(family = "Playfair", hjust = .5, size = 45, lineheight = 0.5),
@@ -472,10 +486,10 @@ b <- ggplot() +
 
 ```
 
-```{r grafico teste_2,fig.align='center'}
-b
-```
+Portando aceitarmos <i>H<sub>0</sub></i>. 
+Desta forma, concluímos que há evidências para acreditarmos que não há diferença entre a proporção de pessoas que possuem e não possuem casa que usam as redes sociais por mais de 5 horas.
 
+# Terceiro teste
 ## Terceiro teste
 - H0: Proporção de uso pop. EUA = Austrália
 
@@ -585,3 +599,6 @@ c <- ggplot() +
 ```{r grafico teste_3,fig.align='center'}
 c
 ```
+
+## Despedida! 
+### Muito obrigado pela atenção!
