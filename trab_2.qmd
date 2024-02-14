@@ -216,8 +216,7 @@ ggplot(dummy_db, aes(x = platform, y = time_spent, fill = platform)) +
 
 Tendo em vista toda análise descritiva realizada, utilizaremos testes de hipóteses para responder algumas questões: 
 
-- Há diferença na proporção de homens e mulheres que utilizam as redes sociais por mais de 5 horas?
-- Há diferença na proporção de pessoas com e sem casa própria que utilizam as redes sociais por mais de 5 horas? 
+- Há diferença na proporção de homens e mulheres que utilizam as redes sociais por mais de 5 horas? 
 - Há diferença na proporção de americanos e australianos que utilizam as redes sociais por mais de 5 horas? 
 
 Para todos esses testes consideramos um nível de significância de 5%.
@@ -283,6 +282,7 @@ knitr::kable(t(table_male_female),
  kable_styling(full_width = F, font_size = 23) 
 
 ```
+
 ## Conclusão
 
 ```{r conc_teste_1, fig.align='center'}
@@ -373,7 +373,7 @@ Desta forma, concluímos que não há evidências para acreditarmos que há dife
 - <i>H<sub>0</sub></i>: A proporção de americanos e australianos que gastam mais de 5 horas em redes sociais é igual; 
 - <i>H<sub>a</sub></i>: A proporção de americanos e australianos que gastam mais de 5 horas em redes sociais é diferente.
 
-```{r teste_3}
+```{r teste_2}
 
 people_eua <- dummy_db |> 
   filter(location == "United States")
@@ -400,8 +400,9 @@ knitr::kable(t(table_eua_aus),
  kable_styling(full_width = F, font_size = 23) 
 
 ```
+
 ## Conclusão
-```{r conc_teste_3, fig.align='center'}
+```{r conc_teste_2, fig.align='center'}
 
 ggplot() +
   stat_function(fun = dnorm,
