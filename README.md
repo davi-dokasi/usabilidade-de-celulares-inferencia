@@ -11,3 +11,5 @@ Nele consta:
 ✔️ Intervalo de Confiança
 
 ✔️ Teste de Hipótese
+
+Link da publicação da apresentação: https://nimrodds.quarto.pub/estimativa-de-uso-de-celulares/#/title-slide
