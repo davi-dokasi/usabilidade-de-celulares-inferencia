@@ -209,7 +209,8 @@ ggplot(dummy_db, aes(x = platform, y = time_spent, fill = platform)) +
 
 :::
 
-# Testes de hipótese
+## Testes de hipótese 
+![](bg_img/social_network_scene.jpg){fig-align="center" width="920" height="auto"}
 
 ## Descrição dos Testes 
 
@@ -250,11 +251,9 @@ $$
 $$ 
 
 # Primeiro teste
-
 ## Primeiro teste
 
 - <i>H<sub>0</sub></i>: A proporção de homens e mulheres que gastam mais de 5 horas em redes sociais é igual; 
-
 - <i>H<sub>a</sub></i>: A proporção de homens e mulheres que gastam mais de 5 horas em redes sociais é diferente. 
 
 ``` {r teste_1, fig.align='center'}
@@ -284,7 +283,6 @@ knitr::kable(t(table_male_female),
  kable_styling(full_width = F, font_size = 23) 
 
 ```
-
 ## Conclusão
 
 ```{r conc_teste_1, fig.align='center'}
@@ -367,8 +365,7 @@ ggplot() +
 ```
 
 Portando aceitarmos <i>H<sub>0</sub></i>. 
-Desta forma, concluímos que há evidências para acreditarmos que não há diferença entre a proporção de homens e mulheres que usam as redes sociais por mais de 5 horas.
-
+Desta forma, concluímos que não há evidências para acreditarmos que há diferença entre a proporção de homens e mulheres que usam as redes sociais por mais de 5 horas.
 
 # Segundo teste
 ## Segundo teste
@@ -403,7 +400,6 @@ knitr::kable(t(table_hm_owners),
  kable_styling(full_width = F, font_size = 23) 
 
 ```
-
 ## Conclusão
 
 ```{r conc_teste_2, fig.align='center'}
@@ -487,37 +483,45 @@ ggplot() +
 ```
 
 Portando aceitarmos <i>H<sub>0</sub></i>. 
-Desta forma, concluímos que há evidências para acreditarmos que não há diferença entre a proporção de pessoas que possuem e não possuem casa que usam as redes sociais por mais de 5 horas.
+Desta forma, concluímos que não há evidências para acreditarmos que há diferença entre a proporção de pessoas que possuem e não possuem casa que usam as redes sociais por mais de 5 horas.
 
 # Terceiro teste
 ## Terceiro teste
-- H0: Proporção de uso pop. EUA = Austrália
 
-- Ha: Proporção de uso pop. EUA != Austrália
+- <i>H<sub>0</sub></i>: A proporção de americanos e australianos que gastam mais de 5 horas em redes sociais é igual; 
+- <i>H<sub>a</sub></i>: A proporção de americanos e australianos que gastam mais de 5 horas em redes sociais é diferente.
 
-```{r teste_3, include=FALSE, warning=FALSE}
-#Componentes necessários para o gráfico 03 - teste hip. p/ Médias das proporções do tempo gasto em redes socias por pessoas dos EUA e na Australia
+```{r teste_3}
 
 people_eua <- dummy_db |> 
   filter(location == "United States")
 
-people_aust <- dummy_db |> 
+people_aus <- dummy_db |> 
   filter(location == "Australia")
 
-media_people_eua <- mean(people_eua$day_spent)
-media_people_aust <- mean(people_aust$day_spent)
+p1 <- sum(people_eua$more_than_5) / (nrow(people_eua) + nrow(people_aus))
+p2 <- sum(people_aus$more_than_5) / (nrow(people_eua) + nrow(people_aus))
+p <- ((nrow(people_eua) * p1) + (nrow(people_aus) * p2)) / (nrow(people_eua) + nrow(people_aus))
 
-p_c3 <- (media_people_eua * nrow(people_eua) + media_people_aust * nrow(people_aust)) / (nrow(people_eua) + nrow(people_aust))
+z <- (p1 - p2)/sqrt(p*(1-p)*((1 / nrow(people_eua)) + (1 / nrow(people_aus))))
 
-#Cálcular estatística de teste:
+p_valor <- pnorm(z)
 
-z_t3 <- (media_people_eua - media_people_aust) / (sqrt(p_c3*(1-p_c3) * (1/nrow(people_eua) + 1/nrow(people_aust))))
+eua <- c(sum(people_eua$more_than_5), nrow(people_eua) - sum(people_eua$more_than_5), nrow(people_eua))
+aus <- c(sum(people_aus$more_than_5), nrow(people_aus) - sum(people_aus$more_than_5), nrow(people_aus))
 
-p_valor3 <- pnorm(z_t3)
+table_eua_aus <- data.frame(EUA = eua, AUS = aus)
 
-#Gráfico 03: 
+knitr::kable(t(table_eua_aus),
+  col.names = c("Mais de 5 horas", "5 horas ou menos", "Total"), 
+  row.names = TRUE) %>%
+ kable_styling(full_width = F, font_size = 23) 
 
-c <- ggplot() +
+```
+## Conclusão
+```{r conc_teste_3, fig.align='center'}
+
+ggplot() +
   stat_function(fun = dnorm,
                 geom = "line", 
                 xlim = c(-4,4),
@@ -525,7 +529,7 @@ c <- ggplot() +
   stat_function(fun = dnorm,
                 geom = "area", fill = "green",
                 alpha = 0.2,
-                xlim = c(-5, z_t3)) +
+                xlim = c(-5, z)) +
   stat_function(fun = dnorm,
                 geom = "area", fill = "green",
                 alpha = 0.3,
@@ -536,7 +540,7 @@ c <- ggplot() +
                 xlim = c(5, lim_sup)) +
   geom_line(aes(x = lim_inf, y = c(0, 0.06))) +
   geom_line(aes(x = lim_sup, y = c(0, 0.06))) +
-  geom_line(aes(x = z_t3, y = c(0, 0.37))) +
+  geom_line(aes(x = z, y = c(0, 0.37))) +
   annotate(geom = "text", 
            x = -3.45, 
            y = 0.1, 
@@ -558,7 +562,7 @@ c <- ggplot() +
   annotate(geom = "text", 
            x = 3.5, 
            y = 0.4, 
-           label = paste("P-valor: ", round(p_valor3, 4)),
+           label = paste("P-valor: ", round(p_valor, 4)),
            family = "Playfair",
            size = 13) +
   annotate(geom = "curve", 
@@ -578,7 +582,7 @@ c <- ggplot() +
            curvature = -0.4,
            arrow = arrow(length = unit(3, "mm"))) +
   annotate(geom = "curve", 
-           x = -0.36,
+           x = z,
            y = 0.37,
            xend = -1.6, 
            yend = 0.38,
@@ -586,19 +590,18 @@ c <- ggplot() +
            curvature = 0.4,
            arrow = arrow(length = unit(3, "mm"))) +
   labs(x = "Z",
-       y = "Densidade",
-       title = "Teste hipótese proporções do tempo gasto em redes socias\npor pessoas dos EUA e na Austrália") +
+       y = "Densidade") +
   theme(plot.background = element_rect(fill = "#fcfbf9"),
         panel.background = element_rect(fill = NA),
         plot.title = element_text(family = "Playfair", hjust = .5, size = 45, lineheight = 0.5),
         axis.title = element_text(family = "Playfair", hjust = .5, size = 30),
-        axis.text = element_text(family = "Playfair", size = 30))
-
+        axis.text = element_text(family = "Playfair", size = 30))      
 ```
 
-```{r grafico teste_3,fig.align='center'}
-c
-```
+Portando aceitarmos <i>H<sub>0</sub></i>. 
+Desta forma, concluímos que não há evidências para acreditarmos que há diferença entre a proporção de americanos e australianos que usam as redes sociais por mais de 5 horas.
 
-## Despedida! 
-### Muito obrigado pela atenção!
+
+## Muito obrigado pela atenção!
+
+![](bg_img/mark.jpg){fig-align="center" width="900" height="auto"}
