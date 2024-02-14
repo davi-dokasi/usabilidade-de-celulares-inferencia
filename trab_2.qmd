@@ -31,15 +31,19 @@ library(showtext)
 
 ```{r setup, include=FALSE, warning=FALSE}
 
+font_add_google("Playfair Display", "Playfair")
+showtext_auto()
+
 dummy_db <- read_csv("dummy_data.csv")
 
-dummy_db$day_spent <- dummy_db$time_spent / 24
+# dummy_db$day_spent   <- dummy_db$time_spent / 24
+dummy_db$more_than_5 <- dummy_db$time_spent > 5
 
 dummy_db_header <- c("Idade", "Gênero", "Horas Gastas",
                      "Plataforma", "Interesse", "Localização",
                      "Demografia", "Profissão", "Renda",
                      "Possui Dívida", "Possui Casa", "Possui Carro",
-                     "Dia Gasto")
+                     "+ 5 horas")
 ```
 
 ## Sobre o dataset
@@ -67,7 +71,7 @@ Exemplo de uma pequena amostra do dataset:
 
  knitr::kable(head(dummy_db),
   col.names = dummy_db_header,
-  align = "rcrcccccrcccr") %>%
+  align = "rcrcccccrcccc") %>%
  kable_styling(full_width = F, font_size = 17) %>%
  column_spec(ncol(dummy_db), color = "red")
 
@@ -207,26 +211,21 @@ ggplot(dummy_db, aes(x = platform, y = time_spent, fill = platform)) +
 
 # Testes de hipótese
 
-```{r dt_teste, include=FALSE, warning=FALSE}
+## Descrição dos Testes 
 
-#Fontes Utilizadas nos Gráficos
-font_add_google("Playfair Display",
-                "Playfair")
-showtext_auto()
+Tendo em vista toda análise descritiva realizada, utilizaremos testes de hipóteses para responder algumas questões: 
 
-#Componentes necessários para o gráfico 01 - teste hip. p/ Médias das proporções dos homens e mulheres:
+- Há diferença no tempo de uso das redes socias entre homens e mulheres?  
+- Há diferença no tempo de uso das redes socias entre pessoas que possuem uma casa própria e pessoas que não possuem?
+- Há diferença no tempo de uso das redes socias entre residentes americanos e residentes australianos?
 
-homens <- dummy_db |> 
-  filter(gender == 'male')
+Para todos esses testes consideramos um nível de significância de 5%.
+```{r limites}
 
-mulheres <- dummy_db |> 
-  filter(gender == 'female')
+alpha <- 0.05
 
-media_homens <- mean(homens$day_spent)
-media_mulheres <- mean(mulheres$day_spent)
-
-p_c <- (media_homens * nrow(homens) + media_mulheres * nrow(mulheres)) / (nrow(homens) + nrow(mulheres))
-
+lim_inf <- qnorm(alpha/2)
+lim_sup <- qnorm(alpha/2, lower.tail = F)
 ```
 
 ## Sobre os testes
@@ -240,12 +239,9 @@ $$
 
 onde:
 
--  p̂1 e  p̂2 são as proporções das amostrais
-
--  p1 e p2 são as proporções populacionais
-
+- p̂1 e  p̂2 são as proporções das amostrais
+- p1 e p2 são as proporções populacionais
 - n1 e n2 são o tamanho das amostras
-
 - p̂ é uma estimativa ponderada tal que
 
 $$
@@ -253,25 +249,45 @@ $$
 {\text{ em que }} (x_1 = n_1\hat{p}_1) {\text{ e }} (x_2 = n_2\hat{p}_2).
 $$ 
 
-```{r info_teste, eval=TRUE, echo=TRUE}
-#Todos os testes levam em consideração alpha de 0.05 e são bilaterais:
-lim_inf <- qnorm(0.025)
-lim_sup <- qnorm(0.025, lower.tail = F)
+## Primeiro teste
 
-#Cálcular estatística de teste e p-valor:
-z_t <- (media_homens - media_mulheres) / (sqrt(p_c*(1-p_c) * (1/nrow(homens) + 1/nrow(mulheres))))
+- <i>H<sub>0</sub></i>: A proporção de homens e mulheres que gastam mais de 5 horas em redes sociais é igual; 
 
-p_valor <- pnorm(z_t)
+- <i>H<sub>a</sub></i>: A proporção de homens e mulheres que gastam mais de 5 horas em redes sociais é diferente. 
+
+``` {r teste_1, fig.align='center'}
+
+dummy_male <- dummy_db |> 
+  filter(gender == 'male')
+
+dummy_female <- dummy_db |> 
+  filter(gender == 'female')
+
+p1 <- sum(dummy_male$more_than_5) / (nrow(dummy_male) + nrow(dummy_female))
+p2 <- sum(dummy_female$more_than_5) / (nrow(dummy_male) + nrow(dummy_female))
+p <- ((nrow(dummy_male) * p1) + (nrow(dummy_female) * p2)) / (nrow(dummy_male) + nrow(dummy_female))
+
+z <- (p1 - p2)/sqrt(p*(1-p)*((1 / nrow(dummy_male)) + (1 / nrow(dummy_male))))
+
+p_valor <- pnorm(z)
+
+homens <- c(sum(dummy_male$more_than_5), nrow(dummy_male) - sum(dummy_male$more_than_5), nrow(dummy_male))
+mulheres <- c(sum(dummy_female$more_than_5), nrow(dummy_female) - sum(dummy_female$more_than_5), nrow(dummy_female))
+
+table_male_female <- data.frame(Homens = homens, Mulheres = mulheres)
+
+knitr::kable(t(table_male_female),
+  col.names = c("Mais de 5 horas", "5 horas ou menos", "Total"), 
+  row.names = TRUE) %>%
+ kable_styling(full_width = F, font_size = 17) 
 
 ```
 
-## Primeiro teste
-- H0: Proporção de uso por gênero é igual
+## Conclusão
 
-- Ha: Proporção de uso por gênero é diferente
-``` {r teste_1, include=FALSE, warning=FALSE}
-#gráfico 01
-a <- ggplot() +
+```{r conc_teste_1}
+
+ggplot() +
   stat_function(fun = dnorm,
                 geom = "line", 
                 xlim = c(-4,4),
@@ -279,7 +295,7 @@ a <- ggplot() +
   stat_function(fun = dnorm,
                 geom = "area", fill = "blue",
                 alpha = 0.2,
-                xlim = c(-5, z_t)) +
+                xlim = c(-5, z)) +
   stat_function(fun = dnorm,
                 geom = "area", fill = "blue",
                 alpha = 0.3,
@@ -290,7 +306,7 @@ a <- ggplot() +
                 xlim = c(5, lim_sup)) +
   geom_line(aes(x = lim_inf, y = c(0, 0.06))) +
   geom_line(aes(x = lim_sup, y = c(0, 0.06))) +
-  geom_line(aes(x = -0.48, y = c(0, 0.355))) +
+  geom_line(aes(x = z, y = c(0, 0.355))) +
   annotate(geom = "text", 
            x = -3.45, 
            y = 0.1, 
@@ -332,7 +348,7 @@ a <- ggplot() +
            curvature = -0.4,
            arrow = arrow(length = unit(3, "mm"))) +
   annotate(geom = "curve", 
-           x = -0.48,
+           x = z,
            y = 0.355,
            xend = -1.6, 
            yend = 0.38,
@@ -340,17 +356,16 @@ a <- ggplot() +
            curvature = 0.4,
            arrow = arrow(length = unit(3, "mm"))) +
   labs(x = "Z",
-       y = "Densidade",
-       title = "Teste hipótese proporções do tempo gasto em\nredes socias por gênero") +
+       y = "Densidade") +
   theme(plot.background = element_rect(fill = "#fcfbf9"),
         panel.background = element_rect(fill = NA),
         plot.title = element_text(family = "Playfair", hjust = .5, size = 45, lineheight = 0.5),
         axis.title = element_text(family = "Playfair", hjust = .5, size = 30),
         axis.text = element_text(family = "Playfair", size = 30))
 ```
-```{r grafico teste_1,fig.align='center'}
-a
-```
+
+Portando aceitarmos <i>H<sub>0</sub></i>. 
+Desta forma, concluímos que há evidências para acreditarmos que não há diferença entre a proporção de homens e mulheres que usam as redes sociais por mais de 5 horas.
 
 ## Segundo teste
 - H0: Proporção pop. casa prórpia = sem casa prórpia
