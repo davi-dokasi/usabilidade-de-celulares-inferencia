@@ -1,5 +1,5 @@
 ---
-title: Estimativa de uso de celulares
+title: Estimativa do uso de Redes Sociais
 title-slide-attributes:
     data-background-image: bg_img/pngegg.png
     data-background-size: contain
@@ -19,16 +19,13 @@ format:
 library(readr)
 library(dplyr)
 library(gridExtra)
-# library(patchwork)
 library(ggplot2)
-# library(magick)
 library(tidyr)
 library(kableExtra)
 library(htmlwidgets)
 library(leaflet)
 library(maps)
 library(showtext)
-# install.packages("showtext")
 
 ```
 
@@ -47,27 +44,33 @@ dummy_db_header <- c("Idade", "Gênero", "Horas Gastas",
 
 ## Sobre o dataset
 
-- Este é um conjunto de dados simulados, gerado utilizando a biblioteca ‘NumPy’ do Python. Os dados representam o tempo que um usuário passa em seus dispositivos utilizando as redes sociais.
+::: columns
 
+::: {.column width="70%"}
 
-## Contexto
+- Este é um conjunto de dados simulados, gerado utilizando a biblioteca ‘NumPy’ de Python e disponibilizada no Kaggle; 
+ - Os dados representam o tempo que um usuário passa em seus dispositivos utilizando as redes sociais;
+- Criado com o objetivo de treinar modelos de Inteligência Artificial e prática de estatítica descritiva.
+::: 
 
-- Criado esses dados com o objetivo de treinar um modelo de Inteligência Artificial para fins de prática pessoal.
+::: {.column width="30%"}
 
+![](bg_img/stickers.png){.absolute  width="300" height="auto"}
+::: 
 
-
-- Texto 
+::: 
 
 ## Apresentando o Dataset
-Exemplo de uma pequena amostra aleatória do dataset:
+Exemplo de uma pequena amostra do dataset:
 
 ```{r amostra_dtset}
 
  knitr::kable(head(dummy_db),
   col.names = dummy_db_header,
-  align = "rcrcccccrcccr"
- )  %>%
-   kable_styling(full_width = F, font_size = 17)
+  align = "rcrcccccrcccr") %>%
+ kable_styling(full_width = F, font_size = 17) %>%
+ column_spec(ncol(dummy_db), color = "red")
+
 ```
 
 ## Análise Descritiva
@@ -118,7 +121,7 @@ Histograma da Renda
 ```{r hist_renda}
 
 ggplot(data=dummy_db,aes(x=income)) +
-  geom_histogram(binwidth = 150, fill = "#699388", color = "#e9ecef") +
+  geom_histogram(binwidth = 150, fill = "#58E8C2", color = "#e9ecef") +
   labs( x = "Renda", 
         y = "Freq.", 
         subtitle = paste("Média: ", mean(dummy_db$income) , "; Desvio Padrão: " , sd(dummy_db$income))) + 
@@ -132,7 +135,7 @@ ggplot(data=dummy_db,aes(x=income)) +
         text = element_text(size = 12))
 ```
 
-Histograma da Tempo Gasto em Redes Sociais
+Histograma do tempo gasto em redes sociais
 ```{r hist_tempo}
 
 ggplot(data=dummy_db,aes(x=time_spent)) +
@@ -151,7 +154,7 @@ ggplot(data=dummy_db,aes(x=time_spent)) +
       
 ```
 
-Variáveis Descritivas  
+Frequência das variáveis descritivas  
 
 ::: columns
 ::: {.column width="33%"}
@@ -167,7 +170,7 @@ Variáveis Descritivas
 ```{r resum_ldemo}
 
  knitr::kable(table(dummy_db$demographics), 
-    col.names = c("Demograf", "Freq")) %>%
+    col.names = c("Demografia", "Freq")) %>%
    kable_styling(full_width = F, font_size = 23)
 ```
 
@@ -183,6 +186,7 @@ Variáveis Descritivas
 :::
 :::
 
+Box plot sobre o tempo gasto em cada plataforma
 ```{r box_plot_plat}
 
 ggplot(dummy_db, aes(x = platform, y = time_spent, fill = platform)) +
@@ -205,9 +209,6 @@ ggplot(dummy_db, aes(x = platform, y = time_spent, fill = platform)) +
 
 ```{r dt_teste, include=FALSE, warning=FALSE}
 
-dt <- dummy_db |> 
-  mutate(tempo_no_dia = time_spent / 24)
-
 #Fontes Utilizadas nos Gráficos
 font_add_google("Playfair Display",
                 "Playfair")
@@ -215,22 +216,22 @@ showtext_auto()
 
 #Componentes necessários para o gráfico 01 - teste hip. p/ Médias das proporções dos homens e mulheres:
 
-homens <- dt |> 
+homens <- dummy_db |> 
   filter(gender == 'male')
 
-mulheres <- dt |> 
+mulheres <- dummy_db |> 
   filter(gender == 'female')
 
-media_homens <- mean(homens$tempo_no_dia)
-media_mulheres <- mean(mulheres$tempo_no_dia)
+media_homens <- mean(homens$day_spent)
+media_mulheres <- mean(mulheres$day_spent)
 
 p_c <- (media_homens * nrow(homens) + media_mulheres * nrow(mulheres)) / (nrow(homens) + nrow(mulheres))
 
 ```
 
 ## Sobre os testes
-Um teste Z de duas amostras é usado para testar a diferença entre duas proporções de populações, p1 e p2, quando uma amostra é selecionada aleatoriamente de cada população. 
 
+Um teste Z de duas amostras é usado para testar a diferença entre duas proporções de populações, p1 e p2, quando uma amostra é selecionada aleatoriamente de cada população. 
 
 A estatística de teste é : 
 $$
@@ -239,17 +240,17 @@ $$
 
 onde:
 
--  p̂1 e  p̂2 são as proporções das amostras 1 e 2
+-  p̂1 e  p̂2 são as proporções das amostrais
 
--  p1 e p2 são as proporções populacionais das populações 1 e 2
+-  p1 e p2 são as proporções populacionais
 
-- n1 e n2 são os tamanhos das amostras 1 e 2
+- n1 e n2 são o tamanho das amostras
 
 - p̂ é uma estimativa ponderada tal que
 
 $$
 \hat{p} = \frac{x_1+x_2}{n_1+n_2}
-{\text{em que}} (x_1 = n_1\hat{p}_1) {\text{ e }} (x_2 = n_2\hat{p}_2).
+{\text{ em que }} (x_1 = n_1\hat{p}_1) {\text{ e }} (x_2 = n_2\hat{p}_2).
 $$ 
 
 ```{r info_teste, eval=TRUE, echo=TRUE}
@@ -356,14 +357,14 @@ a
 ```{r teste_2, include=FALSE, warning=FALSE}
 #Componentes necessários para o gráfico 02 - teste hip. p/ Médias das proporções das pesssoas que tem casa e não tem:
 
-casa_t <- dt |> 
+casa_t <- dummy_db |> 
   filter(isHomeOwner == "True")
 
-casa_f <- dt |> 
+casa_f <- dummy_db |> 
   filter(isHomeOwner == "False")
 
-media_casa_t <- mean(casa_t$tempo_no_dia)
-media_casa_f <- mean(casa_f$tempo_no_dia)
+media_casa_t <- mean(casa_t$day_spent)
+media_casa_f <- mean(casa_f$day_spent)
 
 p_c2 <- (media_casa_t * nrow(casa_t) + media_casa_f * nrow(casa_f)) / (nrow(casa_t) + nrow(casa_f))
 
@@ -464,14 +465,14 @@ b
 ```{r teste_3, include=FALSE, warning=FALSE}
 #Componentes necessários para o gráfico 03 - teste hip. p/ Médias das proporções do tempo gasto em redes socias por pessoas dos EUA e na Australia
 
-people_eua <- dt |> 
+people_eua <- dummy_db |> 
   filter(location == "United States")
 
-people_aust <- dt |> 
+people_aust <- dummy_db |> 
   filter(location == "Australia")
 
-media_people_eua <- mean(people_eua$tempo_no_dia)
-media_people_aust <- mean(people_aust$tempo_no_dia)
+media_people_eua <- mean(people_eua$day_spent)
+media_people_aust <- mean(people_aust$day_spent)
 
 p_c3 <- (media_people_eua * nrow(people_eua) + media_people_aust * nrow(people_aust)) / (nrow(people_eua) + nrow(people_aust))
 
