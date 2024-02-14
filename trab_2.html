@@ -8,7 +8,7 @@
 <link href="trab_2_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <link href="trab_2_files/libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
 <link href="trab_2_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.4.541">
+  <meta name="generator" content="quarto-1.4.526">
 
   <title>Estimativa do uso de Redes Sociais</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -630,7 +630,6 @@
 <p>Tendo em vista toda análise descritiva realizada, utilizaremos testes de hipóteses para responder algumas questões:</p>
 <ul>
 <li>Há diferença na proporção de homens e mulheres que utilizam as redes sociais por mais de 5 horas?</li>
-<li>Há diferença na proporção de pessoas com e sem casa própria que utilizam as redes sociais por mais de 5 horas?</li>
 <li>Há diferença na proporção de americanos e australianos que utilizam as redes sociais por mais de 5 horas?</li>
 </ul>
 <p>Para todos esses testes consideramos um nível de significância de 5%.</p>
@@ -699,6 +698,14 @@
 <h2>Conclusão</h2>
 
 <img data-src="trab_2_files/figure-revealjs/conc_teste_1-1.png" class="quarto-figure quarto-figure-center r-stretch" width="960"><p>Portando aceitarmos <i>H<sub>0</sub></i>. Desta forma, concluímos que não há evidências para acreditarmos que há diferença entre a proporção de homens e mulheres que usam as redes sociais por mais de 5 horas.</p>
+</section>
+<section id="intervalo-de-confiança" class="slide level2">
+<h2>Intervalo de confiança</h2>
+<p>Quando testamos a diferença entre duas proporções (por exemplo, a proporção de sucessos em dois grupos diferentes), a diferença pode ser negativa se a proporção de sucessos no primeiro grupo for menor que a proporção de sucessos no segundo grupo.</p>
+<p>Visto isso no caso de um teste de proporções para duas populações diferentes, com base nos nossos dados é possível afirmar que a proporção de sucessos no primeiro grupo seja menor que a proporção de sucessos no segundo grupo.</p>
+<p><span class="math display">\[\text{IC = Estimativa Pontual }\pm z\cdot EP\]</span> <span class="math display">\[lim_{inf} = -0,06
+\\ \text{ }lim_{sup} = 0,03\]</span></p>
+<p>Logo podemos afirmar com 90% de confiança o intervalo entre [-0,06;0,03] conter o verdadeiro valor do parâmetro.</p>
 </section></section>
 <section>
 <section id="segundo-teste" class="title-slide slide level1 center">
@@ -745,15 +752,20 @@
 <section id="conclusão-1" class="slide level2">
 <h2>Conclusão</h2>
 
-<img data-src="trab_2_files/figure-revealjs/conc_teste_3-1.png" class="quarto-figure quarto-figure-center r-stretch" width="960"><p>Portando aceitarmos <i>H<sub>0</sub></i>. Desta forma, concluímos que não há evidências para acreditarmos que há diferença entre a proporção de americanos e australianos que usam as redes sociais por mais de 5 horas.</p>
+<img data-src="trab_2_files/figure-revealjs/conc_teste_2-1.png" class="quarto-figure quarto-figure-center r-stretch" width="960"><p>Portando aceitarmos <i>H<sub>0</sub></i>. Desta forma, concluímos que não há evidências para acreditarmos que há diferença entre a proporção de americanos e australianos que usam as redes sociais por mais de 5 horas.</p>
+</section>
+<section id="intervalo-de-confiança-1" class="slide level2">
+<h2>Intervalo de confiança</h2>
+<p>Assim como no cálculo do IC do teste anterior, o ajuste de intervalos de confiança para uma diferença de duas proporções, as duas proporções da amostra são usadas para verificar a condição de falha-sucesso.</p>
+<p><span class="math display">\[\text{IC = Estimativa Pontual }\pm z\cdot EP\]</span> <span class="math display">\[lim_{inf} = -0,09
+\\ \text{ }lim_{sup} = 0,01\]</span></p>
+<p>Logo podemos afirmar com 90% de confiança o intervalo entre [-0,09;0,01] conter o verdadeiro valor do parâmetro.</p>
 </section>
 <section id="muito-obrigado-pela-atenção" class="slide level2">
 <h2>Muito obrigado pela atenção!</h2>
 
-<img data-src="bg_img/mark.jpg" class="quarto-figure quarto-figure-center r-stretch" width="900"><div class="quarto-auto-generated-content">
-<div class="footer footer-default">
+<img data-src="bg_img/mark.jpg" class="quarto-figure quarto-figure-center r-stretch" width="900"><div class="footer footer-default">
 <p>Davi Augusto, Diogo Bolzan e João Arend</p>
-</div>
 </div>
 </section></section>
     </div>
