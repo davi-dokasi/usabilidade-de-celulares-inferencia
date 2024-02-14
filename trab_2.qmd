@@ -269,12 +269,14 @@ p_valor <- pnorm(z_t)
 - H0: Proporção de uso por gênero é igual
 
 - Ha: Proporção de uso por gênero é diferente
+
 ``` {r teste_1, include=FALSE, warning=FALSE}
 #gráfico 01
 a <- ggplot() +
   stat_function(fun = dnorm,
                 geom = "line", 
-                xlim = c(-4,4)) +
+                xlim = c(-4,4),
+                linewidth = 0.8) +
   stat_function(fun = dnorm,
                 geom = "area", fill = "blue",
                 alpha = 0.2,
@@ -291,35 +293,35 @@ a <- ggplot() +
   geom_line(aes(x = lim_sup, y = c(0, 0.06))) +
   geom_line(aes(x = -0.48, y = c(0, 0.355))) +
   annotate(geom = "text", 
-           x = -3.65, 
+           x = -3.45, 
            y = 0.1, 
            label = "-1.96",
            family = "Playfair",
-           size = 6) +
+           size = 13) +
   annotate(geom = "text", 
-           x = 3.65, 
+           x = 3.35, 
            y = 0.1, 
            label = "1.96",
            family = "Playfair",
-           size = 6) +
+           size = 13) +
   annotate(geom = "text", 
-           x = -2.2, 
+           x = -2.05, 
            y = 0.38, 
            label = "-0.48",
            family = "Playfair",
-           size = 6) + 
+           size = 13) + 
   annotate(geom = "text", 
            x = 3.5, 
            y = 0.4, 
            label = paste("P-valor: ", round(p_valor, 4)),
            family = "Playfair",
-           size = 4) +
+           size = 13) +
   annotate(geom = "curve", 
            x = lim_inf,
            y = 0.06,
            xend = -3, 
            yend = 0.1,
-           linewidth = 0.3,
+           linewidth = 0.5,
            arrow = arrow(length = unit(3, "mm"))
   ) +
   annotate(geom = "curve", 
@@ -327,7 +329,7 @@ a <- ggplot() +
            y = 0.06,
            xend = 3, 
            yend = 0.1,
-           linewidth = 0.3,
+           linewidth = 0.5,
            curvature = -0.4,
            arrow = arrow(length = unit(3, "mm"))) +
   annotate(geom = "curve", 
@@ -335,7 +337,7 @@ a <- ggplot() +
            y = 0.355,
            xend = -1.6, 
            yend = 0.38,
-           linewidth = 0.3,
+           linewidth = 0.5,
            curvature = 0.4,
            arrow = arrow(length = unit(3, "mm"))) +
   labs(x = "Z",
@@ -343,28 +345,29 @@ a <- ggplot() +
        title = "Teste hipótese proporções do tempo gasto em\nredes socias por gênero") +
   theme(plot.background = element_rect(fill = "#fcfbf9"),
         panel.background = element_rect(fill = NA),
-        plot.title = element_text(family = "Playfair", hjust = .5, size = 15),
-        axis.title = element_text(family = "Playfair", hjust = .5, size = 15))
+        plot.title = element_text(family = "Playfair", hjust = .5, size = 45, lineheight = 0.5),
+        axis.title = element_text(family = "Playfair", hjust = .5, size = 30),
+        axis.text = element_text(family = "Playfair", size = 30))
 ```
-```{r grafico teste_1}
+```{r grafico teste_1,fig.align='center'}
 a
 ```
 
 ## Segundo teste
 - H0: Proporção pop. casa prórpia = sem casa prórpia
 
-- H1: Proporção pop. casa prórpia != sem casa prórpia
+- Ha: Proporção pop. casa prórpia != sem casa prórpia
 ```{r teste_2, include=FALSE, warning=FALSE}
 #Componentes necessários para o gráfico 02 - teste hip. p/ Médias das proporções das pesssoas que tem casa e não tem:
 
 casa_t <- dummy_db |> 
-  filter(isHomeOwner == "True")
+  filter(isHomeOwner == "TRUE")
 
 casa_f <- dummy_db |> 
-  filter(isHomeOwner == "False")
+  filter(isHomeOwner == "FALSE")
 
-media_casa_t <- mean(casa_t$day_spent)
-media_casa_f <- mean(casa_f$day_spent)
+media_casa_t <- mean(casa_t$tempo_no_dia)
+media_casa_f <- mean(casa_f$tempo_no_dia)
 
 p_c2 <- (media_casa_t * nrow(casa_t) + media_casa_f * nrow(casa_f)) / (nrow(casa_t) + nrow(casa_f))
 
@@ -379,11 +382,12 @@ p_valor2 <- pnorm(z_t2)
 b <- ggplot() +
   stat_function(fun = dnorm,
                 geom = "line", 
-                xlim = c(-4,4)) +
+                xlim = c(-4,4),
+                linewidth = 0.8) +
   stat_function(fun = dnorm,
                 geom = "area", fill = "red",
                 alpha = 0.2,
-                xlim = c(-5, z_t2)) +
+                xlim = c(-5, 0.24)) +
   stat_function(fun = dnorm,
                 geom = "area", fill = "red",
                 alpha = 0.3,
@@ -396,35 +400,35 @@ b <- ggplot() +
   geom_line(aes(x = lim_sup, y = c(0, 0.06))) +
   geom_line(aes(x = 0.24, y = c(0, 0.387))) +
   annotate(geom = "text", 
-           x = -3.65, 
+           x = -3.45, 
            y = 0.1, 
            label = "-1.96",
            family = "Playfair",
-           size = 6) +
+           size = 13) +
   annotate(geom = "text", 
-           x = 3.65, 
+           x = 3.35, 
            y = 0.1, 
            label = "1.96",
            family = "Playfair",
-           size = 6) +
+           size = 13) +
   annotate(geom = "text", 
-           x = 2, 
-           y = 0.38, 
+           x = 1.80, 
+           y = 0.37, 
            label = "0.24",
            family = "Playfair",
-           size = 6) + 
+           size = 13) + 
   annotate(geom = "text", 
            x = 3.5, 
            y = 0.4, 
            label = paste("P-valor: ", round(p_valor2, 4)),
            family = "Playfair",
-           size = 4) +
+           size = 13) +
   annotate(geom = "curve", 
            x = lim_inf,
            y = 0.06,
            xend = -3, 
            yend = 0.1,
-           linewidth = 0.3,
+           linewidth = 0.5,
            arrow = arrow(length = unit(3, "mm"))
   ) +
   annotate(geom = "curve", 
@@ -432,28 +436,29 @@ b <- ggplot() +
            y = 0.06,
            xend = 3, 
            yend = 0.1,
-           linewidth = 0.3,
+           linewidth = 0.5,
            curvature = -0.4,
            arrow = arrow(length = unit(3, "mm"))) +
   annotate(geom = "curve", 
            x = 0.24,
            y = 0.385,
            xend = 1.45, 
-           yend = 0.37,
-           linewidth = 0.3,
-           curvature = 0.4,
+           yend = 0.375,
+           linewidth = 0.5,
+           curvature = -0.3,
            arrow = arrow(length = unit(3, "mm"))) +
   labs(x = "Z",
        y = "Densidade",
        title = "Teste hipótese proporções do tempo gasto em redes socias\npor pessoas que possuem casas e que não possuem") +
   theme(plot.background = element_rect(fill = "#fcfbf9"),
         panel.background = element_rect(fill = NA),
-        plot.title = element_text(family = "Playfair", hjust = .5, size = 15),
-        axis.title = element_text(family = "Playfair", hjust = .5, size = 15))
+         plot.title = element_text(family = "Playfair", hjust = .5, size = 45, lineheight = 0.5),
+        axis.title = element_text(family = "Playfair", hjust = .5, size = 30),
+        axis.text = element_text(family = "Playfair", size = 30))
 
 ```
 
-```{r grafico teste_2}
+```{r grafico teste_2,fig.align='center'}
 b
 ```
 
@@ -471,8 +476,8 @@ people_eua <- dummy_db |>
 people_aust <- dummy_db |> 
   filter(location == "Australia")
 
-media_people_eua <- mean(people_eua$day_spent)
-media_people_aust <- mean(people_aust$day_spent)
+media_people_eua <- mean(people_eua$tempo_no_dia)
+media_people_aust <- mean(people_aust$tempo_no_dia)
 
 p_c3 <- (media_people_eua * nrow(people_eua) + media_people_aust * nrow(people_aust)) / (nrow(people_eua) + nrow(people_aust))
 
@@ -487,7 +492,8 @@ p_valor3 <- pnorm(z_t3)
 c <- ggplot() +
   stat_function(fun = dnorm,
                 geom = "line", 
-                xlim = c(-4,4)) +
+                xlim = c(-4,4),
+                linewidth = 0.8) +
   stat_function(fun = dnorm,
                 geom = "area", fill = "green",
                 alpha = 0.2,
@@ -504,35 +510,35 @@ c <- ggplot() +
   geom_line(aes(x = lim_sup, y = c(0, 0.06))) +
   geom_line(aes(x = z_t3, y = c(0, 0.37))) +
   annotate(geom = "text", 
-           x = -3.65, 
+           x = -3.45, 
            y = 0.1, 
            label = "-1.96",
            family = "Playfair",
-           size = 6) +
+           size = 13) +
   annotate(geom = "text", 
-           x = 3.65, 
+           x = 3.35, 
            y = 0.1, 
            label = "1.96",
            family = "Playfair",
-           size = 6) +
+           size = 13) +
   annotate(geom = "text", 
-           x = -2.2, 
+           x = -2.1, 
            y = 0.38, 
            label = "-0.36",
            family = "Playfair",
-           size = 6) + 
+           size = 13) + 
   annotate(geom = "text", 
            x = 3.5, 
            y = 0.4, 
            label = paste("P-valor: ", round(p_valor3, 4)),
            family = "Playfair",
-           size = 4) +
+           size = 13) +
   annotate(geom = "curve", 
            x = lim_inf,
            y = 0.06,
            xend = -3, 
            yend = 0.1,
-           linewidth = 0.3,
+           linewidth = 0.5,
            arrow = arrow(length = unit(3, "mm"))
   ) +
   annotate(geom = "curve", 
@@ -540,7 +546,7 @@ c <- ggplot() +
            y = 0.06,
            xend = 3, 
            yend = 0.1,
-           linewidth = 0.3,
+           linewidth = 0.5,
            curvature = -0.4,
            arrow = arrow(length = unit(3, "mm"))) +
   annotate(geom = "curve", 
@@ -548,7 +554,7 @@ c <- ggplot() +
            y = 0.37,
            xend = -1.6, 
            yend = 0.38,
-           linewidth = 0.3,
+           linewidth = 0.5,
            curvature = 0.4,
            arrow = arrow(length = unit(3, "mm"))) +
   labs(x = "Z",
@@ -556,11 +562,12 @@ c <- ggplot() +
        title = "Teste hipótese proporções do tempo gasto em redes socias\npor pessoas dos EUA e na Austrália") +
   theme(plot.background = element_rect(fill = "#fcfbf9"),
         panel.background = element_rect(fill = NA),
-        plot.title = element_text(family = "Playfair", hjust = .5, size = 15),
-        axis.title = element_text(family = "Playfair", hjust = .5, size = 15))
+        plot.title = element_text(family = "Playfair", hjust = .5, size = 45, lineheight = 0.5),
+        axis.title = element_text(family = "Playfair", hjust = .5, size = 30),
+        axis.text = element_text(family = "Playfair", size = 30))
 
 ```
 
-```{r grafico teste_3}
+```{r grafico teste_3,fig.align='center'}
 c
 ```
